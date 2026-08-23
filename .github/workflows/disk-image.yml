@@ -1,0 +1,31 @@
+name: Build Alpine RPi disk image
+
+# Builds bootable Raspberry Pi SD-card images (alpine.img.xz) via the
+# reusable build-alpine-rpi.yml workflow (see bbusse/github-workflows),
+# which wraps image-builder's alpine target (raspi-alpine/builder).
+# Matrixed over aarch64 (Pi 3/4/5) and armhf (Pi Zero/Zero W/1).
+#
+# Runs alongside container-image.yml on every push, so both the
+# container and the disk image get built from the same commit.
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+    branches:
+      - '**'
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      flavour:
+        description: Alpine target flavour (sway|containeros)
+        required: false
+        default: containeros
+        type: string
+
+jobs:
+  build-alpine-rpi:
+    uses: bbusse/github-workflows/.github/workflows/build-alpine-rpi.yml@dev
+    with:
+      flavour: ${{ inputs.flavour || 'containeros' }}
